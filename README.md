@@ -1,7 +1,7 @@
 # authly Web Directory
 [![license | GPLv3](https://img.shields.io/badge/license-GPLv3-blue)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![built at | Hack Club](https://img.shields.io/badge/built_at-Hack_Club-%23ec3750?logo=hackclub)](https://hackclub.com)
-[![part of | authly](https://img.shields.io/badge/part_of-authly-%23f1c40f)](https://summer.hackclub.com)
+[![part of | authly](https://img.shields.io/badge/part_of-authly-%23f1c40f)](https://authly.hackclub.com)
 
 Perhaps the web directory with the weirdest domain verification system.
 
