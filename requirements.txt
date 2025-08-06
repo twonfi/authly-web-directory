@@ -1,0 +1,4 @@
+Django~=5.2.4
+django-environ~=0.12.0
+requests~=2.32.4
+pki-tools~=1.1.2

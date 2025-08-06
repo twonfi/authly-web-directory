@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Verify your domain</h1>
+  <p>Please issue a <b>TLS certificate</b> for <code>{{ chal.challenge_domain }}</code></p>
+  <p><strong>Don't click <kbd>Done</kbd></strong> unless you're done (the certificate is issued)!</p>
+  <p>crt.sh probably hates me, wait 5 min before clicking <kbd>Done</kbd></p>
+  <form action="{% url 'authly:verify' %}" method="post">{% csrf_token %}
+    <input type="submit" value="Done">
+  </form>
+{% endblock content %}

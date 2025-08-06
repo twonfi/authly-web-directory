@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Logout</h1>
+  <p>To log out, please <b>revoke</b> the certificate for <code>{{ chal.challenge_domain }}</code></p>
+  <form method="post">{% csrf_token %}
+    <input type="submit" value="Or just use me to invalidate your session">
+  </form>
+{% endblock content %}
