@@ -1,25 +1,24 @@
 from datetime import datetime, timezone
+from base64 import b64decode
 
 from django.db import models
 from requests import get, JSONDecodeError
 import pki_tools as pki
 
 
-def check_crl_from_crtsh(crtsh_id: int) -> bool:
+def check_crl_from_cert(cert: pki.Certificate) -> bool:
     """Check if a certificate is revoked using a Certificate Revocation
     List (CRL).
 
-    This checks if a certificate is revoked by downloading its CRL from
-    the URI specified from the certificate and checking if the
-    certificate (from crt.sh) is in the CRL.
+    This checks if a certificate is revoked by using
+    ``pki_tools.Certificate`` from the URI specified from the
+    certificate and checking if the certificate is in the CRL.
 
-    :param crtsh_id: ID of certificate from crt.sh
-    :type crtsh_id: int
+    :param cert: ID of certificate from crt.sh
+    :type cert: pki.Certificate
     :return: Whether the certificate is valid
     :rtype: bool
     """
-
-    cert = pki.Certificate.from_uri(f"https://crt.sh/?d={crtsh_id}")
 
     crl_uri = (cert.extensions.crl_distribution_points
            .crl_distribution_points[0].full_name[0].value)
@@ -67,7 +66,9 @@ class Challenge(models.Model):
                             < today
                             < datetime.fromisoformat(cert["not_after"] + "Z")
                     ):
-                        if check_crl_from_crtsh(cert["id"]):
+                        cert = pki.Certificate.from_uri(
+                            f"https://crt.sh/?d={cert["id"]}")
+                        if check_crl_from_cert(cert):
                             self.authenticated = True
                             return self.authenticated
 
@@ -89,8 +90,12 @@ class Challenge(models.Model):
                             < today < datetime.fromisoformat(cert["not_after"])
                         and not cert["revocation"]["time"]
                     ):
-                        self.authenticated = True
-                    return self.authenticated
+                        der = b64decode(cert["cert_der"].encode("ascii"))
+                        cert = pki.Certificate.from_der_bytes(der)
+                        if check_crl_from_cert(cert):
+                            self.authenticated = True
+                            return self.authenticated
                 self.endgame()
+                return False
 
         return self.authenticated
