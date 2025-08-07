@@ -4,6 +4,84 @@
   <h1>Websites in this directory</h1>
   <p><s>Totally not sponsored and falsely advertised!</s></p>
   <hr>
+  <p>Welcome to this directory.</p>
+  <p>To sign in, you'll need to issue a TLS certificate for a random subdomain of your domain.</p>
+  <p>Nest works for this (you probably have a Nest account). Caddy auto-generates the cert when you visit the domain using HTTPS.</p>
+  <p>See the <a href="https://github.com/twonfi/authly-web-directory">README</a>.</p>
+  <details>
+    <summary>Spill the tea</summary>
+    <p>
+      This directory uses the <a href="https://certificate.transparency.dev">Certificate Transparency</a> system
+      to check if a certificate has been issued for a domain.
+      I wrote this check myself with some library help with "parsing" the certs.
+    </p>
+    <pre>
+<code>  def check_ct(self) -> bool:
+      """Check Certificate Transparency and Certificate Revocation
+      List of this challenge.
+
+      Calling this also saves the status to ``self.authenticated``.
+
+      :return: Whether the challenge succeeded
+      :rtype: bool
+      """
+
+      if self.challenge_domain[:1] == "_":
+          self.authenticated = True
+          return self.authenticated
+
+      today = datetime.now(timezone.utc)
+
+      r = get(f"https://crt.sh/?Identity={self.challenge_domain}"
+              f"&exclude=expired&output=json")
+      if r.text:
+          try:
+              certs = r.json()
+          except JSONDecodeError:
+              pass
+          else:
+              for cert in certs:
+                  if (
+                      # Manually make timezone-aware
+                      datetime.fromisoformat(cert["not_before"] + "Z")
+                          < today
+                          < datetime.fromisoformat(cert["not_after"] + "Z")
+                  ):
+                      cert = pki.Certificate.from_uri(
+                          f"https://crt.sh/?d={cert["id"]}")
+                      if check_crl_from_cert(cert):
+                          self.authenticated = True
+                          return self.authenticated
+
+      # SSLMate backup
+      # (crt.sh isn't reliable but put here due to SSLMate's limits)
+      s = get("https://api.certspotter.com/v1/issuances"
+              f"?domain={self.challenge_domain}"
+              "&expand=revocation&expand=cert_der")
+      if s.text:
+          try:
+              certs = s.json()
+          except JSONDecodeError:
+              self.endgame()
+              return False
+          else:
+              for cert in certs:
+                  if (
+                      datetime.fromisoformat(cert["not_before"])
+                          < today < datetime.fromisoformat(cert["not_after"])
+                      and not cert["revocation"]["time"]
+                  ):
+                      der = b64decode(cert["cert_der"].encode("ascii"))
+                      cert = pki.Certificate.from_der_bytes(der)
+                      if check_crl_from_cert(cert):
+                          self.authenticated = True
+                          return self.authenticated
+              self.endgame()
+              return False
+
+        return self.authenticated</code></pre>
+  </details>
+  <hr>
   <section id="websites">
     {% for site in websites %}
       <article>
