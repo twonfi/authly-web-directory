@@ -31,7 +31,7 @@ class Challenge(models.Model):
     domain = models.CharField(max_length=223)
     challenge_domain = models.CharField(max_length=255)
     authenticated = models.BooleanField(default=False)
-    key = models.CharField(max_length=255)
+    key = models.CharField(max_length=128)
 
     def endgame(self) -> None:
         if self.authenticated:

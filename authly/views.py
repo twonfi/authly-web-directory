@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.utils.crypto import get_random_string
+from django.contrib.auth.hashers import make_password, check_password
 
 from .forms import LoginForm
 from .models import Challenge
@@ -13,8 +14,9 @@ def login(request):
             chal = form.save(commit=False)
             chal.challenge_domain = (f"{get_random_string(length=32).lower()}"
                                      f"-awd.{chal.domain}")
-            chal.key = get_random_string(length=255)
+            chal.key = make_password(get_random_string(length=255))
             chal.save()
+            request.session["domain"] = chal.challenge_domain
             request.session["chal"] = chal.key
 
             context = {
@@ -44,7 +46,7 @@ def verify(request):
     except (KeyError, Challenge.DoesNotExist):
         return redirect("authly:login")
 
-    if chal.check_ct():
+    if check_password(request.session["chal"], chal.key) and chal.check_ct():
         return redirect("directory:site_list")
     else:
         return redirect("authly:login")
@@ -52,8 +54,12 @@ def verify(request):
 
 def logout(request):
     try:
-        chal = Challenge.objects.get(key=request.session["chal"])
+        chal = Challenge.objects.get(
+            challenge_domain=request.session["domain"])
     except (KeyError, Challenge.DoesNotExist):
+        return redirect("authly:login")
+
+    if not check_password(request.session["chal"], chal.key):
         return redirect("authly:login")
 
     if request.method == "POST":
