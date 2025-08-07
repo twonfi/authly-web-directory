@@ -45,7 +45,7 @@ def verify(request):
         return redirect("authly:login")
 
     if chal.check_ct():
-        return redirect("home:home")
+        return redirect("directory:site_list")
     else:
         return redirect("authly:login")
 
