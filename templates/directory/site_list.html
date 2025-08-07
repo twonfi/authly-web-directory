@@ -80,6 +80,16 @@
               return False
 
         return self.authenticated</code></pre>
+    <h2>How does CT work?</h2>
+    <p>
+      A simplified way of explaining <a href="https://certificate.transparency.dev/howctworks/">how CT works</a> is that:
+    </p>
+    <ol>
+      <li>A certificate authority (CA) like Let's Encrypt first sends a "precertificate" (intent to issue a similar, leaf ("real") certificate but can't be used)</li>
+      <li>Each CT log responds with a signed certificate timestamp (SCT) (promise to add the certificate to the log within a timeframe)</li>
+      <li>CT logs add it to their append-only Merkle trees</li>
+      <li>The CA gets the SCTs, includes with the cert, and sends it to the subscriber</li>
+    </ol>
   </details>
   <hr>
   <section id="websites">
