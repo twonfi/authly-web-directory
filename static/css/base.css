@@ -1,8 +1,17 @@
 nav {
+  margin-top: 2em;
   ul {
     padding: 0;
+    text-align: center;
     li {
       display: inline;
+      background: #eda;
+      padding: 1em;
+      border-radius: 20px;
+      border: thin solid #777;
+      a {
+        color: black;
+      }
     }
   }
 }
@@ -13,6 +22,7 @@ body {
 }
 
 article {
+  background: #fff;
   border: thin solid #777;
   border-radius: 20px;
   padding: 1.1em;
