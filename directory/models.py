@@ -15,3 +15,11 @@ class Website(models.Model):
         return reverse("directory:site_page", kwargs={
             "domain": self.domain,
         })
+
+
+class Review(models.Model):
+    site = models.ForeignKey(Website, on_delete=models.CASCADE)
+    reviewer = models.CharField(max_length=255)
+    body = models.TextField()
+    verified = models.BooleanField('"Verified" review', blank=True,
+        help_text="Bring back Fakespot!")

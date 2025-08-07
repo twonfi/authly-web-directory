@@ -3,7 +3,17 @@
 {% block content %}
   <h1>{{ site.name }}</h1>
   <p>{{ site.desc }}</p>
-  {% if chal and chal.domain == site.domain %}
-    <a href="{% url 'directory:manage_site' %}">Manage</a>
-  {% endif %}
+
+  <fieldset>
+    <legend>Complain ("Karen") about us here</legend>
+    <form method="post">{% csrf_token %}
+      {{ f.as_p }}
+      <input type="submit" value="You need to leave!">
+    </form>
+    {% for r in reviews %}
+      <p>
+        <b>{{ r.reviewer }}</b> complained that {{ r.body }}
+      </p>
+    {% endfor %}
+  </fieldset>
 {% endblock content %}

@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import Http404
 
-from .models import Website
-from .forms import ManageWebsiteForm
+from .models import Website, Review
+from .forms import ManageWebsiteForm, PostReviewForm
 from authly.models import Challenge
 
 
@@ -29,14 +29,22 @@ def site_page(request, domain):
         site = Website.objects.get(domain=domain)
     except Website.DoesNotExist:
         if chal:
-            site = None
-            ...
+            return redirect("directory:manage_site")
         else:
             raise Http404
+    else:
+        f = PostReviewForm(request.POST or None)
+
+        if request.method == "POST" and f.is_valid():
+            r = f.save(commit=False)
+            r.site = site
+            r.save()
 
     context = {
         "site": site,
         "chal": chal,
+        "f": f,
+        "reviews": Review.objects.all().order_by("-id"),
     }
 
     return render(request, "directory/site_page.html", context)
