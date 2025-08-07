@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, []),
+    STATIC_ROOT=(str, None),
 )
 environ.Env.read_env(BASE_DIR / '.env')
 
@@ -107,6 +108,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = env("STATIC_ROOT")
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
