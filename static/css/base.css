@@ -9,4 +9,12 @@ nav {
 
 body {
   font-family: system-ui, sans-serif;
+  background: #ddd;
+}
+
+article {
+  border: thin solid #777;
+  border-radius: 20px;
+  padding: 1.1em;
+  margin: 1em 0;
 }
