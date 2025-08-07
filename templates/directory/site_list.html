@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Websites in this directory</h1>
+  <p><s>Totally not sponsored and falsely advertised!</s></p>
+  <hr>
+  <section id="websites">
+    {% for site in websites %}
+      <article>
+        <h2><a href="{% url 'directory:site_page' domain=site.domain %}">{{ site.name }}</a></h2>
+        <p>{{ site.desc }}</p>
+      </article>
+    {% endfor %}
+  </section>
+{% endblock content %}

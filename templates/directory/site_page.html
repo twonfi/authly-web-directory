@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ site.name }}</h1>
+  <p>{{ site.desc }}</p>
+  {% if chal and chal.domain == site.domain %}
+    <a href="{% url 'directory:manage_site' %}">Manage</a>
+  {% endif %}
+{% endblock content %}
