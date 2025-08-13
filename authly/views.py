@@ -14,10 +14,10 @@ def login(request):
             chal = form.save(commit=False)
             chal.challenge_domain = (f"{get_random_string(length=32).lower()}"
                                      f"-awd.{chal.domain}")
-            chal.key = make_password(get_random_string(length=255))
+            request.session["chal"] = get_random_string(length=255)
+            chal.key = make_password(request.session["chal"])
             chal.save()
             request.session["domain"] = chal.challenge_domain
-            request.session["chal"] = chal.key
 
             context = {
                 "chal": chal,
