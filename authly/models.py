@@ -20,6 +20,8 @@ def check_crl_from_cert(cert: pki.Certificate) -> bool:
     :rtype: bool
     """
 
+    print('checking crl')
+
     crl_uri = (cert.extensions.crl_distribution_points
            .crl_distribution_points[0].full_name[0].value)
     crl = pki.CertificateRevocationList.from_uri(crl_uri, cache_time_seconds=1)
@@ -38,6 +40,7 @@ class Challenge(models.Model):
             self.delete()
         else:
             self.authenticated = False
+            self.save()
 
     def check_ct(self) -> bool:
         """Check Certificate Transparency and Certificate Revocation
@@ -51,9 +54,11 @@ class Challenge(models.Model):
 
         if self.challenge_domain[:1] == "_":
             self.authenticated = True
+            self.save()
             return self.authenticated
 
         today = datetime.now(timezone.utc)
+        print(self.challenge_domain)
 
         r = get(f"https://crt.sh/?Identity={self.challenge_domain}"
                 f"&exclude=expired&output=json")
@@ -63,7 +68,9 @@ class Challenge(models.Model):
             except JSONDecodeError:
                 pass
             else:
+                print('crtsh')
                 for cert in certs:
+                    print('crtsh trying', cert)
                     if (
                         # Manually make timezone-aware
                         datetime.fromisoformat(cert["not_before"] + "Z")
@@ -74,6 +81,7 @@ class Challenge(models.Model):
                             f"https://crt.sh/?d={cert["id"]}")
                         if check_crl_from_cert(cert):
                             self.authenticated = True
+                            self.save()
                             return self.authenticated
 
         # SSLMate backup
@@ -88,7 +96,9 @@ class Challenge(models.Model):
                 self.endgame()
                 return False
             else:
+                print('sslmate')
                 for cert in certs:
+                    print('sslmate trying', cert)
                     if (
                         datetime.fromisoformat(cert["not_before"])
                             < today < datetime.fromisoformat(cert["not_after"])
@@ -98,6 +108,7 @@ class Challenge(models.Model):
                         cert = pki.Certificate.from_der_bytes(der)
                         if check_crl_from_cert(cert):
                             self.authenticated = True
+                            self.save()
                             return self.authenticated
                 self.endgame()
                 return False
