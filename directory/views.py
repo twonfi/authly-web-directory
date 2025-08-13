@@ -29,7 +29,7 @@ def site_page(request, domain):
     context = {
         "site": site,
         "f": f,
-        "reviews": Review.objects.all().order_by("-id"),
+        "reviews": Review.objects.filter(site=site).order_by("-id"),
     }
 
     return render(request, "directory/site_page.html", context)
