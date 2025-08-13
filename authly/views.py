@@ -42,8 +42,12 @@ def login(request):
 
 def verify(request):
     try:
-        chal = Challenge.objects.get(key=request.session["chal"])
+        chal = Challenge.objects.get(
+            challenge_domain=request.session["domain"])
     except (KeyError, Challenge.DoesNotExist):
+        return redirect("authly:login")
+
+    if not check_password(request.session["chal"], chal.key):
         return redirect("authly:login")
 
     if check_password(request.session["chal"], chal.key) and chal.check_ct():
