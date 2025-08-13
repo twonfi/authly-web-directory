@@ -38,7 +38,8 @@ def site_page(request, domain):
 def manage_website(request):
     if request.session["chal"]:
         try:
-            chal = Challenge.objects.get(key=request.session["chal"])
+            chal = Challenge.objects.get(
+                challenge_domain=request.session["domain"])
         except Challenge.DoesNotExist:
             pass
         else:
