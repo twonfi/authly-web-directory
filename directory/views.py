@@ -42,7 +42,8 @@ def manage_website(request):
         except Challenge.DoesNotExist:
             pass
         else:
-            if check_password(request.session["chal"], chal.key):
+            if (check_password(request.session["chal"], chal.key)
+                    and chal.authenticated):
                 site = Website.objects.get_or_create(domain=chal.domain,
                     defaults={"name": chal.domain})[0]
                 f = ManageWebsiteForm(request.POST or None, instance=site)
